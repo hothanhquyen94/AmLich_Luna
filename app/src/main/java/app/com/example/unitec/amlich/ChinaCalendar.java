@@ -163,5 +163,28 @@ public class ChinaCalendar {
         return new int[]{lunarDay,lunarMonth,lunarYear};
     }
 
+    public String getLunarDate(){
+        String[] can = new String[] {"Giap", "At","Binh","Dinh","Mau","Ki","Canh","Tan","Nham","Qui"};
+        String[] chi = new String[] {"Ti","Suu","Dan","Mao","Thinh","Ti","Ngo","Mui","Than","Dau","Tuat","Hoi"};
+        long juliusDay = convertToJuliusDay();
+       // return can[(int)((juliusDay+9)%10)-1]+" "+chi[(int)((juliusDay+12)%12)];
+        return can[(int) ((juliusDay + 9) % 10)] + " " + chi[(int) ((juliusDay + 1) % 12)];
+    }
+
+    public   String getLunarMonth(){
+        String[] can = new String[] {"Giáp", "Ất","Binh","Dinh","Mau","Ki","Canh","Tan","Nham","Qui"};
+        String[] chi = new String[] {"Dan","Mao","Thinh","Ti","Ngo","Mui","Than","Dau","Tuat","Hoi","Ti","Suu"};
+        int[] dateLuna = ConVertToLunar();
+        int mod = (dateLuna[2]*12+dateLuna[1]+3)%10;
+        //int mod = (mLunarYear*12+ mLunarMonth+3)%10;
+        return can[mod]+" "+chi[dateLuna[1]-1];
+    }
+
+    public  String getLunarYear(){
+        String[] can = new String[] {"Giap", "At","Binh","Dinh","Mau","Ki","Canh","Tan","Nham","Qui"};
+        String[] chi = new String[] {"Ty","Suu","Dan","Mao","Thinh","Ti","Ngo","Mui","Than","Dau","Tuat","Hoi"};
+        int[] dateLuna = ConVertToLunar();
+        return can[(dateLuna[2]+6)%10] +" "+chi[(dateLuna[2]+8)%12];
+    }
 
 }

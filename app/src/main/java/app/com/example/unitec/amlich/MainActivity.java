@@ -27,10 +27,13 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import static app.com.example.unitec.amlich.GridCellAdapter.getIdMonthAsString;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,SimpleCallBack {
     private static final String tag = "MyCalendarActivity";
     private TextView currentMonth;
-    private Button selectedDayMonthYearButton;
+    private TextView selectedDayMonthYearButton;
     private ImageView prevMonth;
     private ImageView nextMonth;
     private GridView calendarView;
@@ -41,27 +44,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @SuppressWarnings("unused")
     @SuppressLint({ "NewApi", "NewApi", "NewApi", "NewApi" })
     private final DateFormat dateFormatter = new DateFormat();
-    private static final String dateTemplate = "MMMM yyyy"; /** Called when the activity is first created. */
+    private static final String dateTemplate = "M"; /** Called when the activity is first created. */
+    private static final String yearTempalte = "yyyy"; /** Called when the activity is first created. */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final Button btn = (Button)findViewById(R.id.selectedDayMonthYear);
+        TextView btn = (TextView)findViewById(R.id.selectedDayMonthYear);
         _calendar = Calendar.getInstance(Locale.getDefault());
         month = _calendar.get(Calendar.MONTH)+1;
         year = _calendar.get(Calendar.YEAR);
-        Log.d("Main----", "Calendar Instance:= " + "Month: " + month + " " + "Year: " + year);
 
-        selectedDayMonthYearButton = (Button) this.findViewById(R.id.selectedDayMonthYear);
-        selectedDayMonthYearButton.setText("Selected: ");
-
+        selectedDayMonthYearButton = (TextView) this.findViewById(R.id.selectedDayMonthYear);
         prevMonth = (ImageView) this.findViewById(R.id.prevMonth);
         prevMonth.setOnClickListener(this);
-
         currentMonth =(TextView) this.findViewById(R.id.currentMonth);
-        currentMonth.setText(DateFormat.format(dateTemplate, _calendar.getTime()));
-
+        currentMonth.setText("Tháng "+DateFormat.format(dateTemplate, _calendar.getTime()));
+        btn.setText(DateFormat.format(yearTempalte, _calendar.getTime()));
         nextMonth = (ImageView) this.findViewById(R.id.nextMonth);
         nextMonth.setOnClickListener(this);
 
@@ -76,11 +76,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ((GridCellAdapter) parent.getAdapter()).setSelected(view,position);
                 String[] selectedGridDate = GridCellAdapter.list
                         .get(position).split("-");
-                int theday = Integer.parseInt(selectedGridDate[0]);
-                btn.setText(selectedGridDate[0] + selectedGridDate[2]+selectedGridDate[3]);
-                if ((theday > 8)&& (position < 8)){
+                String theday = selectedGridDate[0];
+                String themonth = selectedGridDate[2];
+                String theyear = selectedGridDate[3];
+
+                int MonthToCovert = getIdMonthAsString(themonth);
+                int DayToCovert =   Integer.parseInt(theday);
+                int YearToCovert =  Integer.parseInt(theyear);
+
+                //covert to luna date
+                int[] dateLunaCover = CovertoLunaDate(DayToCovert,MonthToCovert,YearToCovert);
+                String[] dateLunaAsString = getLunaDayAsString(DayToCovert,MonthToCovert,YearToCovert);
+                TextView textView = (TextView)findViewById(R.id.display_luna_date);
+                textView.setText("Ngày "+dateLunaAsString[0]+" tháng "+dateLunaAsString[1]+" năm "+dateLunaAsString[2]);
+
+                //btn.setText(selectedGridDate[0] + selectedGridDate[2]+selectedGridDate[3]);
+                if ((DayToCovert > 8)&& (position < 8)){
                     nextMonthView();
-                }else if (( theday < 7 )&& ( position > 28 )){
+                }else if (( DayToCovert < 7 )&& ( position > 28 )){
                     prevMonthView();
                 }
             }
@@ -133,11 +146,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onReturnValue(String[] value,int i) {
         // Button btn = (Button)findViewById(R.id.selectedDayMonthYear);
         // btn.setText(value[0] + value[2]+value[3]);
-        int date = Integer.parseInt(value[0]);
-        if ((date > 8)&& (i < 8)){
-            nextMonthView();
-        }else if (( date < 7 )&& ( i > 28 )){
-            prevMonthView();
-        }
+       //int date = Integer.parseInt(value[0]);
+       //if ((date > 8)&& (i < 8)){
+       //    nextMonthView();
+       //}else if (( date < 7 )&& ( i > 28 )){
+       //    prevMonthView();
+       //}
+       // TextView textView = (TextView)findViewById(R.id.display_luna_date);
+       // textView.setText(value[0]+", "+value[1]+", "+value[2]+ i);
+    }
+
+    public int[] CovertoLunaDate(int day,int month,int year){
+        ChinaCalendar lunaDate = new ChinaCalendar(day,month,year);
+        int[] dateLuna = lunaDate.ConVertToLunar();
+        return dateLuna;
+    }
+    public String[] getLunaDayAsString(int day,int month,int year){
+        ChinaCalendar lunaDate = new ChinaCalendar(day,month,year);
+        String dayCanChi = lunaDate.getLunarDate();
+        String monthCanChi = lunaDate.getLunarMonth();
+        String yearCanChi = lunaDate.getLunarYear();
+        return new String[] {dayCanChi,monthCanChi,yearCanChi};
     }
 }

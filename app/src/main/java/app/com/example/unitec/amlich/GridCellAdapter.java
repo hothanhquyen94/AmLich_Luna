@@ -53,19 +53,7 @@ public class GridCellAdapter extends BaseAdapter  {
         GregorianCalendar cal_month = (GregorianCalendar) GregorianCalendar.getInstance();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         curentDateString = df.format(cal_month.getTime());
-    }
-    private int getIdMonthAsString(String s){
-        return Arrays.asList(Util.months).indexOf(s)+1;
-    }
 
-    private String getMonthAsString(int i) {
-        return Util.months[i];
-    }
-    private String getWeekDayAsString(int i) {
-        return Util.weekdays[i];
-    }
-    private int getNumberOfDaysOfMonth(int i) {
-        return Util.daysOfMonth[i];
     }
 
     @Override
@@ -171,12 +159,14 @@ public class GridCellAdapter extends BaseAdapter  {
         String theyear = day_color[3];
 
         int MonthToCovert = getIdMonthAsString(themonth);
-        Log.d("quyen",MonthToCovert+"--"+themonth + "-"+theday +"-"+theyear);
         int DayToCovert =   Integer.parseInt(theday);
         int YearToCovert =  Integer.parseInt(theyear);
+
         //covert to luna date
         int[] dateLunaCover = CovertoLunaDate(DayToCovert,MonthToCovert,YearToCovert);
+        String[] dateLunaAsString = getLunaDayAsString(DayToCovert,MonthToCovert,YearToCovert);
 
+        callback.onReturnValue(dateLunaAsString,position);
         if (dateLunaCover[0]==1){
             dateLuna.setText(String.valueOf(dateLunaCover[0])+"/"+dateLunaCover[1]);
         }else {
@@ -201,9 +191,8 @@ public class GridCellAdapter extends BaseAdapter  {
         }
         if ((theday.equals(CurrentTimeDay)) && (themonth.equals(CurrentTimeMonth)) && (theyear.equals(CurrentTimeYear))){
             view.setBackgroundColor(Color.BLUE);
-            dateSolar.setTextColor(Color.RED);
         } else {
-            view.setBackgroundColor(Color.parseColor("#343434"));
+            view.setBackgroundColor(Color.TRANSPARENT);
         }
 
 
@@ -211,7 +200,7 @@ public class GridCellAdapter extends BaseAdapter  {
     }
     public View setSelected(View view, int pos) {
         if (previousView != null) {
-            previousView.setBackgroundColor(Color.parseColor("#343434"));
+            previousView.setBackgroundColor(Color.TRANSPARENT);
         }
 
         view.setBackgroundColor(Color.CYAN);
@@ -227,9 +216,9 @@ public class GridCellAdapter extends BaseAdapter  {
     }
 
 
-    public int getCurrentDayOfMonth() {
-        return currentDayOfMonth;
-    }
+   // public int getCurrentDayOfMonth() {
+   //     return currentDayOfMonth;
+   // }
 
     private void setCurrentDayOfMonth(int currentDayOfMonth) {
         this.currentDayOfMonth = currentDayOfMonth;
@@ -248,6 +237,27 @@ public class GridCellAdapter extends BaseAdapter  {
         int[] dateLuna = lunaDate.ConVertToLunar();
         return dateLuna;
     }
+    public String[] getLunaDayAsString(int day,int month,int year){
+        ChinaCalendar lunaDate = new ChinaCalendar(day,month,year);
+         String dayCanChi = lunaDate.getLunarDate();
+         String monthCanChi = lunaDate.getLunarMonth();
+         String yearCanChi = lunaDate.getLunarYear();
+        return new String[] {dayCanChi,monthCanChi,yearCanChi};
+    }
+
+    public static int getIdMonthAsString(String s){
+        return Arrays.asList(Util.months).indexOf(s)+1;
+    }
+    private String getMonthAsString(int i) {
+        return Util.months[i];
+    }
+    private String getWeekDayAsString(int i) {
+        return Util.weekdays[i];
+    }
+    private int getNumberOfDaysOfMonth(int i) {
+        return Util.daysOfMonth[i];
+    }
+
 }
 interface SimpleCallBack {
     void onReturnValue(String[] value, int i);
